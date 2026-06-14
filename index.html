@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="ro" data-lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>G Moto — Moto & ATV Dealership</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Barlow Condensed (display) + Inter (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;0,900;1,800;1,900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <script>
+    // ─── Tailwind Config ────────────────────────────────────────────────────────
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            base:    '#0A0A0A',
+            surface: '#141414',
+            elevated:'#1E1E1E',
+            accent:  '#F5C400',
+            'accent-dark': '#D4A800',
+            purple:  '#9B30FF',
+            'purple-dark': '#7A20E0',
+            muted:   '#888888',
+            light:   '#F0F0F0',
+          },
+          fontFamily: {
+            display: ['"Barlow Condensed"', 'sans-serif'],
+            body:    ['Inter', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* ─── Base Reset ─────────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: #0A0A0A;
+      color: #F0F0F0;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+    }
+
+    /* ─── Diagonal Slash Hero Divider ───────────────────────────────────────── */
+    .slash-divider {
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 6px;
+      background: #F5C400;
+      transform: skewX(-8deg);
+      box-shadow: 0 0 32px #F5C40088;
+    }
+
+    /* ─── Accent Glow Utilities ─────────────────────────────────────────────── */
+    .glow-accent { box-shadow: 0 0 24px #F5C40055; }
+    .glow-text   { text-shadow: 0 0 40px #F5C40066; }
+
+    /* ─── Hero Background ────────────────────────────────────────────────────── */
+    .hero-bg {
+      background: linear-gradient(135deg, #0A0A0A 0%, #1a0a2e 55%, #0d0a00 100%);
+      position: relative;
+    }
+    .hero-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 75% 40%, #9B30FF18 0%, transparent 55%),
+        radial-gradient(ellipse at 20% 80%, #F5C40010 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    /* ─── Product Card ───────────────────────────────────────────────────────── */
+    .product-card {
+      background: #141414;
+      border: 1px solid #222;
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    .product-card:hover {
+      transform: translateY(-6px);
+      border-color: #9B30FF;
+      box-shadow: 0 16px 40px #9B30FF22;
+    }
+    .product-card .card-img {
+      background: #1E1E1E;
+      overflow: hidden;
+    }
+    .product-card .card-img img {
+      transition: transform 0.4s ease;
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+    }
+    .product-card:hover .card-img img { transform: scale(1.05); }
+
+    /* ─── Category Split ─────────────────────────────────────────────────────── */
+    .cat-card {
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .cat-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: #9B30FF;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 1;
+    }
+    .cat-card:hover::before { opacity: 0.06; }
+    .cat-card .cat-border {
+      position: absolute;
+      inset: 0;
+      border: 2px solid transparent;
+      transition: border-color 0.3s;
+      z-index: 2;
+    }
+    .cat-card:hover .cat-border { border-color: #9B30FF; }
+
+    /* ─── Navbar ─────────────────────────────────────────────────────────────── */
+    #navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      transition: background 0.3s, backdrop-filter 0.3s;
+    }
+    #navbar.scrolled {
+      background: rgba(10,10,10,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #222;
+    }
+
+    /* ─── Cart Drawer ────────────────────────────────────────────────────────── */
+    #cart-drawer {
+      position: fixed;
+      top: 0; right: 0; bottom: 0;
+      width: 400px;
+      max-width: 100vw;
+      background: #141414;
+      border-left: 1px solid #222;
+      z-index: 200;
+      transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+      display: flex;
+      flex-direction: column;
+    }
+    #cart-drawer.open { transform: translateX(0); }
+    #cart-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 199;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s;
+    }
+    #cart-overlay.open { opacity: 1; pointer-events: all; }
+
+    /* ─── Language Switcher ──────────────────────────────────────────────────── */
+    .lang-btn {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      padding: 4px 10px;
+      border: 1px solid #333;
+      background: transparent;
+      color: #888;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .lang-btn.active, .lang-btn:hover {
+      color: #F5C400;
+      border-color: #F5C400;
+    }
+
+    /* ─── Scrollbar ──────────────────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0A0A0A; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #F5C400; }
+
+    /* ─── Badge ──────────────────────────────────────────────────────────────── */
+    .brand-badge {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 2px;
+    }
+
+    /* ─── Mobile Menu ────────────────────────────────────────────────────────── */
+    #mobile-menu {
+      display: none;
+      position: fixed;
+      top: 64px; left: 0; right: 0;
+      background: rgba(10,10,10,0.98);
+      border-bottom: 1px solid #222;
+      z-index: 99;
+      padding: 1.5rem;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    #mobile-menu.open { display: flex; }
+
+    /* ─── Filter Sidebar ─────────────────────────────────────────────────────── */
+    .filter-checkbox {
+      accent-color: #F5C400;
+      width: 16px; height: 16px;
+      cursor: pointer;
+    }
+    .filter-label { cursor: pointer; font-size: 14px; color: #ccc; }
+    .filter-label:hover { color: #F5C400; }
+
+    /* ─── Notification Toast ─────────────────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: #1E1E1E;
+      border: 1px solid #F5C400;
+      border-radius: 6px;
+      padding: 1rem 1.5rem;
+      z-index: 300;
+      transform: translateY(120%);
+      transition: transform 0.3s;
+      font-size: 14px;
+      max-width: 320px;
+    }
+    #toast.show { transform: translateY(0); }
+  </style>
+</head>
+
+<body class="bg-base text-light font-body">
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     NAVIGATION
+════════════════════════════════════════════════════════════════════════════ -->
+<nav id="navbar" class="py-4 px-6 lg:px-12">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+
+    <!-- Logo -->
+    <a href="#" class="flex items-center no-underline">
+      <img src="logo.png" alt="G Moto" style="height:52px;width:auto;object-fit:contain;filter:drop-shadow(0 0 10px #9B30FF44);" />
+    </a>
+
+    <!-- Desktop Nav Links -->
+    <ul class="hidden lg:flex items-center gap-8 list-none m-0 p-0">
+      <li><a href="#catalog" class="nav-link font-display font-semibold text-sm uppercase tracking-widest text-muted hover:text-accent transition-colors" data-i18n="nav_catalog">Catalog</a></li>
+      <li><a href="#about" class="nav-link font-display font-semibold text-sm uppercase tracking-widest text-muted hover:text-accent transition-colors" data-i18n="nav_brands">Branduri</a></li>
+      <li><a href="#contact" class="nav-link font-display font-semibold text-sm uppercase tracking-widest text-muted hover:text-accent transition-colors" data-i18n="nav_contact">Contact</a></li>
+    </ul>
+
+    <!-- Right: Lang + Cart + Mobile toggle -->
+    <div class="flex items-center gap-3">
+      <!-- Language Switcher -->
+      <div class="flex items-center">
+        <button class="lang-btn active" id="btn-ro" onclick="setLang('ro')">RO</button>
+        <button class="lang-btn" id="btn-ru" onclick="setLang('ru')">RU</button>
+      </div>
+
+      <!-- Cart Button -->
+      <button onclick="toggleCart()" class="relative flex items-center gap-2 bg-accent hover:bg-accent-dark text-black font-display font-bold text-sm uppercase tracking-wider px-4 py-2 transition-colors">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 01-8 0"/>
+        </svg>
+        <span data-i18n="nav_cart">Coș</span>
+        <span id="cart-count" class="absolute -top-2 -right-2 bg-white text-black font-black text-xs w-5 h-5 rounded-full flex items-center justify-center" style="display:none!important">0</span>
+      </button>
+
+      <!-- Mobile Hamburger -->
+      <button class="lg:hidden text-muted hover:text-light" onclick="toggleMobileMenu()" aria-label="Menu">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 12h18M3 6h18M3 18h18"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div id="mobile-menu">
+  <a href="#catalog" class="font-display font-semibold text-lg uppercase tracking-widest text-muted hover:text-accent" data-i18n="nav_catalog" onclick="toggleMobileMenu()">Catalog</a>
+  <a href="#about" class="font-display font-semibold text-lg uppercase tracking-widest text-muted hover:text-accent" data-i18n="nav_brands" onclick="toggleMobileMenu()">Branduri</a>
+  <a href="#contact" class="font-display font-semibold text-lg uppercase tracking-widest text-muted hover:text-accent" data-i18n="nav_contact" onclick="toggleMobileMenu()">Contact</a>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     HERO SECTION
+════════════════════════════════════════════════════════════════════════════ -->
+<section class="hero-bg min-h-screen flex items-center pt-24 pb-16 px-6 lg:px-12 relative overflow-hidden">
+
+  <!-- Background decorative large text -->
+  <div class="absolute inset-0 flex items-center justify-end pointer-events-none overflow-hidden">
+    <span class="font-display font-black italic text-[22vw] leading-none text-white opacity-[0.025] select-none pr-4">MOTO</span>
+  </div>
+
+  <!-- Accent line — purple to gold gradient -->
+  <div class="absolute left-0 top-1/4 bottom-1/4 w-1" style="border-radius:0 4px 4px 0;background:linear-gradient(to bottom,#9B30FF,#F5C400);box-shadow:0 0 20px #9B30FF66;"></div>
+
+  <div class="max-w-7xl mx-auto w-full relative z-10">
+    <div class="max-w-3xl">
+      <!-- Eyebrow -->
+      <p class="font-display font-bold text-accent text-sm uppercase tracking-[0.3em] mb-4" data-i18n="hero_eyebrow">Moldova's Premier Dealership</p>
+
+      <!-- Headline -->
+      <h1 class="font-display font-black italic text-7xl lg:text-9xl leading-[0.9] text-light mb-6 glow-text" data-i18n="hero_headline">
+        RIDE<br/><span class="text-accent">WITHOUT</span><br/>LIMITS
+      </h1>
+
+      <!-- Sub -->
+      <p class="text-muted text-lg font-light max-w-xl mb-10 leading-relaxed" data-i18n="hero_sub">
+        Cele mai bune motociclete și ATV-uri de la Kayo, Viper și Gherakl. Calitate garantată, livrare rapidă.
+      </p>
+
+      <!-- CTA Buttons -->
+      <div class="flex flex-wrap gap-4">
+        <a href="#catalog" class="font-display font-bold text-lg uppercase tracking-wider bg-accent hover:bg-accent-dark text-black px-8 py-4 transition-colors" data-i18n="hero_cta_primary">
+          Explorează Catalogul
+        </a>
+        <a href="#categories" class="font-display font-bold text-lg uppercase tracking-wider border border-[#9B30FF] hover:border-accent text-[#9B30FF] hover:text-accent px-8 py-4 transition-colors" data-i18n="hero_cta_secondary">
+          Vezi Categorii
+        </a>
+      </div>
+
+      <!-- Stats row -->
+      <div class="flex gap-12 mt-16">
+        <div>
+          <p class="font-display font-black text-4xl text-accent">150+</p>
+          <p class="text-muted text-sm uppercase tracking-wider font-display" data-i18n="stat_models">Modele</p>
+        </div>
+        <div style="width:1px;background:#222;"></div>
+        <div>
+          <p class="font-display font-black text-4xl text-light">3</p>
+          <p class="text-muted text-sm uppercase tracking-wider font-display" data-i18n="stat_brands">Branduri Top</p>
+        </div>
+        <div style="width:1px;background:#222;"></div>
+        <div>
+          <p class="font-display font-black text-4xl text-light">24/7</p>
+          <p class="text-muted text-sm uppercase tracking-wider font-display" data-i18n="stat_support">Suport Clienți</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     FEATURED CATEGORIES
+════════════════════════════════════════════════════════════════════════════ -->
+<section id="categories" class="py-20 px-6 lg:px-12">
+  <div class="max-w-7xl mx-auto">
+
+    <div class="flex items-center justify-between mb-12">
+      <div>
+        <p class="font-display font-bold text-accent text-xs uppercase tracking-[0.3em] mb-2" data-i18n="categories_eyebrow">Ce cauți?</p>
+        <h2 class="font-display font-black italic text-5xl lg:text-6xl text-light" data-i18n="categories_title">ALEGE VEHICULUL</h2>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <!-- Motorcycles -->
+      <div class="cat-card bg-surface rounded-none cursor-pointer" onclick="filterByType('moto')" style="min-height:320px;">
+        <div class="cat-border rounded-none"></div>
+        <div class="relative z-10 p-10 flex flex-col justify-between h-full" style="min-height:320px;">
+          <div>
+            <span class="font-display font-black text-accent text-[80px] leading-none opacity-20">01</span>
+          </div>
+          <div>
+            <!-- Icon -->
+            <div class="mb-4 text-accent">
+              <svg width="48" height="48" viewBox="0 0 64 64" fill="none">
+                <defs>
+                  <linearGradient id="grad-moto" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#9B30FF"/>
+                    <stop offset="100%" stop-color="#F5C400"/>
+                  </linearGradient>
+                </defs>
+                <ellipse cx="14" cy="46" rx="10" ry="10" stroke="url(#grad-moto)" stroke-width="3"/>
+                <ellipse cx="50" cy="46" rx="10" ry="10" stroke="url(#grad-moto)" stroke-width="3"/>
+                <path d="M24 46h12M14 36l6-16h18l8 10-4 6" stroke="url(#grad-moto)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M38 20l6 4" stroke="#F5C400" stroke-width="3" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <h3 class="font-display font-black italic text-5xl text-light mb-2" data-i18n="cat_moto">MOTOCICLETE</h3>
+            <p class="text-muted text-sm" data-i18n="cat_moto_desc">Sport, enduro, naked & touring — toate stilurile de riding</p>
+            <div class="flex items-center gap-2 mt-6 text-accent font-display font-bold text-sm uppercase tracking-wider">
+              <span data-i18n="cat_browse">Vezi modele</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ATVs -->
+      <div class="cat-card bg-surface rounded-none cursor-pointer" onclick="filterByType('atv')" style="min-height:320px;">
+        <div class="cat-border rounded-none"></div>
+        <div class="relative z-10 p-10 flex flex-col justify-between h-full" style="min-height:320px;">
+          <div>
+            <span class="font-display font-black text-accent text-[80px] leading-none opacity-20">02</span>
+          </div>
+          <div>
+            <!-- Icon -->
+            <div class="mb-4 text-accent">
+              <svg width="48" height="48" viewBox="0 0 64 64" fill="none">
+                <defs>
+                  <linearGradient id="grad-atv" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#9B30FF"/>
+                    <stop offset="100%" stop-color="#F5C400"/>
+                  </linearGradient>
+                </defs>
+                <ellipse cx="12" cy="46" rx="10" ry="10" stroke="url(#grad-atv)" stroke-width="3"/>
+                <ellipse cx="52" cy="46" rx="10" ry="10" stroke="url(#grad-atv)" stroke-width="3"/>
+                <ellipse cx="12" cy="22" rx="10" ry="10" stroke="#9B30FF" stroke-width="2"/>
+                <ellipse cx="52" cy="22" rx="10" ry="10" stroke="#9B30FF" stroke-width="2"/>
+                <rect x="22" y="18" width="20" height="24" rx="2" stroke="url(#grad-atv)" stroke-width="3"/>
+              </svg>
+            </div>
+            <h3 class="font-display font-black italic text-5xl text-light mb-2" data-i18n="cat_atv">ATV-URI</h3>
+            <p class="text-muted text-sm" data-i18n="cat_atv_desc">Off-road, quad, sport & utilitar — putere pe orice teren</p>
+            <div class="flex items-center gap-2 mt-6 text-accent font-display font-bold text-sm uppercase tracking-wider">
+              <span data-i18n="cat_browse">Vezi modele</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     PRODUCT CATALOG
+════════════════════════════════════════════════════════════════════════════ -->
+<section id="catalog" class="py-20 px-6 lg:px-12 bg-surface">
+  <div class="max-w-7xl mx-auto">
+
+    <div class="mb-12">
+      <p class="font-display font-bold text-accent text-xs uppercase tracking-[0.3em] mb-2" data-i18n="catalog_eyebrow">Stoc disponibil</p>
+      <h2 class="font-display font-black italic text-5xl lg:text-6xl text-light" data-i18n="catalog_title">CATALOG COMPLET</h2>
+    </div>
+
+    <div class="flex flex-col lg:flex-row gap-8">
+
+      <!-- ── Filter Sidebar ── -->
+      <aside class="lg:w-64 flex-shrink-0">
+        <div class="bg-elevated p-6 border border-[#222]">
+
+          <h3 class="font-display font-bold uppercase tracking-widest text-sm text-muted mb-6" data-i18n="filter_title">Filtre</h3>
+
+          <!-- Vehicle Type -->
+          <div class="mb-6">
+            <p class="font-display font-bold text-xs uppercase tracking-widest text-light mb-3" data-i18n="filter_type">Tip Vehicul</p>
+            <div class="flex flex-col gap-2">
+              <label class="flex items-center gap-3">
+                <input type="checkbox" class="filter-checkbox" id="f-moto" onchange="applyFilters()" checked />
+                <span class="filter-label" data-i18n="cat_moto">Motociclete</span>
+              </label>
+              <label class="flex items-center gap-3">
+                <input type="checkbox" class="filter-checkbox" id="f-atv" onchange="applyFilters()" checked />
+                <span class="filter-label" data-i18n="cat_atv">ATV-uri</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Brand -->
+          <div class="mb-6">
+            <p class="font-display font-bold text-xs uppercase tracking-widest text-light mb-3" data-i18n="filter_brand">Brand</p>
+            <div class="flex flex-col gap-2">
+              <label class="flex items-center gap-3">
+                <input type="checkbox" class="filter-checkbox" id="f-kayo" onchange="applyFilters()" checked />
+                <span class="filter-label">Kayo</span>
+              </label>
+              <label class="flex items-center gap-3">
+                <input type="checkbox" class="filter-checkbox" id="f-viper" onchange="applyFilters()" checked />
+                <span class="filter-label">Viper</span>
+              </label>
+              <label class="flex items-center gap-3">
+                <input type="checkbox" class="filter-checkbox" id="f-gherakl" onchange="applyFilters()" checked />
+                <span class="filter-label">Gherakl</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Price Range -->
+          <div>
+            <p class="font-display font-bold text-xs uppercase tracking-widest text-light mb-3" data-i18n="filter_price">Preț (€)</p>
+            <div class="flex gap-2 items-center">
+              <input type="number" id="price-min" placeholder="0" min="0"
+                class="w-full bg-base border border-[#333] text-light text-sm p-2 focus:border-accent focus:outline-none"
+                onchange="applyFilters()" />
+              <span class="text-muted">—</span>
+              <input type="number" id="price-max" placeholder="∞" min="0"
+                class="w-full bg-base border border-[#333] text-light text-sm p-2 focus:border-accent focus:outline-none"
+                onchange="applyFilters()" />
+            </div>
+          </div>
+
+          <!-- Reset -->
+          <button onclick="resetFilters()"
+            class="mt-6 w-full font-display font-bold text-sm uppercase tracking-wider border border-muted text-muted hover:border-accent hover:text-accent py-2 transition-colors">
+            <span data-i18n="filter_reset">Resetează</span>
+          </button>
+
+        </div>
+      </aside>
+
+      <!-- ── Product Grid ── -->
+      <div class="flex-1">
+        <!-- Sort / Count bar -->
+        <div class="flex items-center justify-between mb-6">
+          <p class="text-muted text-sm"><span id="product-count">0</span> <span data-i18n="catalog_results">produse</span></p>
+          <select onchange="sortProducts(this.value)"
+            class="bg-elevated border border-[#333] text-light text-sm p-2 focus:border-accent focus:outline-none">
+            <option value="default" data-i18n="sort_default">Implicit</option>
+            <option value="price-asc" data-i18n="sort_price_asc">Preț: Mic → Mare</option>
+            <option value="price-desc" data-i18n="sort_price_desc">Preț: Mare → Mic</option>
+          </select>
+        </div>
+
+        <!-- Grid -->
+        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Empty state -->
+        <div id="empty-state" class="hidden text-center py-20">
+          <p class="font-display font-black italic text-4xl text-muted opacity-40" data-i18n="empty_state">Niciun produs găsit</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     BRAND STRIP
+════════════════════════════════════════════════════════════════════════════ -->
+<section id="about" class="py-16 px-6 lg:px-12 border-t border-[#1a1a1a]">
+  <div class="max-w-7xl mx-auto">
+    <p class="text-center font-display font-bold text-xs uppercase tracking-[0.4em] text-muted mb-10" data-i18n="brands_title">Branduri partenere</p>
+    <div class="flex flex-wrap items-center justify-center gap-12 lg:gap-24">
+      <span class="font-display font-black italic text-5xl text-muted hover:text-accent transition-colors cursor-default">KAYO</span>
+      <div style="width:1px;height:40px;background:#222;"></div>
+      <span class="font-display font-black italic text-5xl text-muted hover:text-accent transition-colors cursor-default">VIPER</span>
+      <div style="width:1px;height:40px;background:#222;"></div>
+      <span class="font-display font-black italic text-5xl text-muted hover:text-accent transition-colors cursor-default">GHERAKL</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     PRODUCT DETAIL MODAL
+════════════════════════════════════════════════════════════════════════════ -->
+<div id="product-modal" class="fixed inset-0 z-150 flex items-center justify-center p-4" style="display:none!important;z-index:150;">
+  <div class="absolute inset-0 bg-black/80" onclick="closeModal()"></div>
+  <div class="relative bg-surface border border-[#222] w-full max-w-3xl max-h-[90vh] overflow-y-auto z-10">
+    <!-- Modal content injected by JS -->
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     CART DRAWER
+════════════════════════════════════════════════════════════════════════════ -->
+<div id="cart-overlay" onclick="toggleCart()"></div>
+<aside id="cart-drawer">
+  <div class="flex items-center justify-between p-6 border-b border-[#222]">
+    <h2 class="font-display font-black italic text-2xl" data-i18n="cart_title">COȘUL TĂU</h2>
+    <button onclick="toggleCart()" class="text-muted hover:text-light transition-colors">
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <div id="cart-items" class="flex-1 overflow-y-auto p-6">
+    <!-- Cart items rendered by JS -->
+  </div>
+
+  <div class="p-6 border-t border-[#222]">
+    <div class="flex items-center justify-between mb-4">
+      <span class="font-display font-bold uppercase tracking-wider text-sm" data-i18n="cart_total">Total</span>
+      <span class="font-display font-black text-2xl text-accent" id="cart-total">€0</span>
+    </div>
+    <button onclick="proceedToCheckout()"
+      class="w-full bg-accent hover:bg-accent-dark text-black font-display font-bold text-lg uppercase tracking-wider py-4 transition-colors"
+      data-i18n="cart_checkout">
+      Finalizează Comanda
+    </button>
+    <button onclick="clearCart()"
+      class="w-full mt-2 text-muted hover:text-accent font-display text-sm uppercase tracking-wider py-2 transition-colors"
+      data-i18n="cart_clear">
+      Golește coșul
+    </button>
+  </div>
+</aside>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     CONTACT / FOOTER
+════════════════════════════════════════════════════════════════════════════ -->
+<section id="contact" class="py-20 px-6 lg:px-12 bg-elevated border-t border-[#1a1a1a]">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+      <div class="lg:col-span-1">
+        <img src="logo.png" alt="G Moto" style="height:44px;width:auto;object-fit:contain;filter:drop-shadow(0 0 8px #9B30FF33);" />
+        <p class="text-muted text-sm mt-4 leading-relaxed" data-i18n="footer_desc">
+          Dealer autorizat Kayo, Viper și Gherakl în Moldova. Vino la noi pentru cele mai bune oferte.
+        </p>
+      </div>
+      <div>
+        <p class="font-display font-bold uppercase tracking-widest text-xs text-muted mb-4" data-i18n="footer_contact_title">Contact</p>
+        <div class="flex flex-col gap-2 text-sm text-muted">
+          <span>📍 Str. Motoarelor 12, Chișinău</span>
+          <span>📞 +373 69 123 456</span>
+          <span>✉ contact@gmoto.md</span>
+        </div>
+      </div>
+      <div>
+        <p class="font-display font-bold uppercase tracking-widest text-xs text-muted mb-4" data-i18n="footer_hours_title">Program</p>
+        <div class="flex flex-col gap-1 text-sm text-muted">
+          <span data-i18n="footer_weekdays">Lun–Vin: 9:00 – 18:00</span>
+          <span data-i18n="footer_saturday">Sâm: 10:00 – 15:00</span>
+          <span data-i18n="footer_sunday">Dum: Închis</span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-12 pt-8 border-t border-[#1a1a1a] flex items-center justify-between">
+      <p class="text-muted text-xs">© 2025 G Moto. <span data-i18n="footer_rights">Toate drepturile rezervate.</span></p>
+      <p class="text-muted text-xs opacity-40">Powered by Firebase</p>
+    </div>
+  </div>
+</section>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════════════════════════════════════════════ -->
+
+<!-- Firebase SDK (v9 modular via CDN compat shim for simplicity) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<!-- Firebase Config (copy firebase-config.template.js → firebase-config.js and fill in values) -->
+<script src="firebase-config.js"></script>
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   2.  LOCALIZATION
+   ── All UI strings live here. Add more keys as pages grow. ─────────────────
+════════════════════════════════════════════════════════════════════════════ */
+const TRANSLATIONS = {
+  ro: {
+    /* Navbar */
+    nav_catalog:        "Catalog",
+    nav_brands:         "Branduri",
+    nav_contact:        "Contact",
+    nav_cart:           "Coș",
+
+    /* Hero */
+    hero_eyebrow:       "Cel mai bun dealer din Moldova",
+    hero_headline:      "RIDE<br/>FĂRĂ<br/>LIMITE",
+    hero_sub:           "Cele mai bune motociclete și ATV-uri de la Kayo, Viper și Gherakl. Calitate garantată, livrare rapidă.",
+    hero_cta_primary:   "Explorează Catalogul",
+    hero_cta_secondary: "Vezi Categorii",
+
+    /* Stats */
+    stat_models:  "Modele",
+    stat_brands:  "Branduri Top",
+    stat_support: "Suport Clienți",
+
+    /* Categories */
+    categories_eyebrow: "Ce cauți?",
+    categories_title:   "ALEGE VEHICULUL",
+    cat_moto:           "Motociclete",
+    cat_moto_desc:      "Sport, enduro, naked & touring — toate stilurile de riding",
+    cat_atv:            "ATV-uri",
+    cat_atv_desc:       "Off-road, quad, sport & utilitar — putere pe orice teren",
+    cat_browse:         "Vezi modele",
+
+    /* Catalog */
+    catalog_eyebrow:    "Stoc disponibil",
+    catalog_title:      "CATALOG COMPLET",
+    catalog_results:    "produse",
+    filter_title:       "Filtre",
+    filter_type:        "Tip Vehicul",
+    filter_brand:       "Brand",
+    filter_price:       "Preț (€)",
+    filter_reset:       "Resetează",
+    sort_default:       "Implicit",
+    sort_price_asc:     "Preț: Mic → Mare",
+    sort_price_desc:    "Preț: Mare → Mic",
+    empty_state:        "Niciun produs găsit",
+
+    /* Product card */
+    btn_details:        "Detalii",
+    btn_add_cart:       "Adaugă în Coș",
+    label_engine:       "Motor",
+    label_power:        "Putere",
+    label_transmission: "Transmisie",
+    label_weight:       "Greutate",
+
+    /* Cart */
+    cart_title:    "COȘUL TĂU",
+    cart_total:    "Total",
+    cart_checkout: "Finalizează Comanda",
+    cart_clear:    "Golește coșul",
+    cart_empty:    "Coșul tău este gol.",
+    toast_added:   "Produs adăugat în coș!",
+    toast_removed: "Produs eliminat din coș.",
+
+    /* Brands */
+    brands_title: "Branduri partenere",
+
+    /* Footer */
+    footer_desc:          "Dealer autorizat Kayo, Viper și Gherakl în Moldova.",
+    footer_contact_title: "Contact",
+    footer_hours_title:   "Program",
+    footer_weekdays:      "Lun–Vin: 9:00 – 18:00",
+    footer_saturday:      "Sâm: 10:00 – 15:00",
+    footer_sunday:        "Dum: Închis",
+    footer_rights:        "Toate drepturile rezervate.",
+
+    /* Modal */
+    modal_close:      "Închide",
+    modal_specs:      "Specificații Tehnice",
+    modal_in_stock:   "În Stoc",
+    modal_out_stock:  "Epuizat",
+  },
+
+  ru: {
+    /* Navbar */
+    nav_catalog:        "Каталог",
+    nav_brands:         "Бренды",
+    nav_contact:        "Контакт",
+    nav_cart:           "Корзина",
+
+    /* Hero */
+    hero_eyebrow:       "Лучший дилер в Молдове",
+    hero_headline:      "ЕЗДИ<br/>БЕЗ<br/>ПРЕДЕЛА",
+    hero_sub:           "Лучшие мотоциклы и ATV от Kayo, Viper и Gherakl. Гарантированное качество, быстрая доставка.",
+    hero_cta_primary:   "Открыть Каталог",
+    hero_cta_secondary: "Смотреть Категории",
+
+    /* Stats */
+    stat_models:  "Моделей",
+    stat_brands:  "Топ Брендов",
+    stat_support: "Поддержка 24/7",
+
+    /* Categories */
+    categories_eyebrow: "Что ищете?",
+    categories_title:   "ВЫБЕРИТЕ ТРАНСПОРТ",
+    cat_moto:           "Мотоциклы",
+    cat_moto_desc:      "Спорт, эндуро, нейкед и туринг — все стили езды",
+    cat_atv:            "ATV",
+    cat_atv_desc:       "Офф-роад, квадроцикл, спорт — мощь на любой трассе",
+    cat_browse:         "Смотреть модели",
+
+    /* Catalog */
+    catalog_eyebrow:    "Доступный сток",
+    catalog_title:      "ПОЛНЫЙ КАТАЛОГ",
+    catalog_results:    "товаров",
+    filter_title:       "Фильтры",
+    filter_type:        "Тип транспорта",
+    filter_brand:       "Бренд",
+    filter_price:       "Цена (€)",
+    filter_reset:       "Сбросить",
+    sort_default:       "По умолчанию",
+    sort_price_asc:     "Цена: Низкая → Высокая",
+    sort_price_desc:    "Цена: Высокая → Низкая",
+    empty_state:        "Товары не найдены",
+
+    /* Product card */
+    btn_details:        "Подробнее",
+    btn_add_cart:       "В корзину",
+    label_engine:       "Двигатель",
+    label_power:        "Мощность",
+    label_transmission: "Трансмиссия",
+    label_weight:       "Вес",
+
+    /* Cart */
+    cart_title:    "ВАША КОРЗИНА",
+    cart_total:    "Итого",
+    cart_checkout: "Оформить Заказ",
+    cart_clear:    "Очистить корзину",
+    cart_empty:    "Ваша корзина пуста.",
+    toast_added:   "Товар добавлен в корзину!",
+    toast_removed: "Товар удалён из корзины.",
+
+    /* Brands */
+    brands_title: "Бренды-партнёры",
+
+    /* Footer */
+    footer_desc:          "Официальный дилер Kayo, Viper и Gherakl в Молдове.",
+    footer_contact_title: "Контакт",
+    footer_hours_title:   "График работы",
+    footer_weekdays:      "Пн–Пт: 9:00 – 18:00",
+    footer_saturday:      "Сб: 10:00 – 15:00",
+    footer_sunday:        "Вс: Закрыто",
+    footer_rights:        "Все права защищены.",
+
+    /* Modal */
+    modal_close:     "Закрыть",
+    modal_specs:     "Технические Характеристики",
+    modal_in_stock:  "В наличии",
+    modal_out_stock: "Нет в наличии",
+  }
+};
+
+let currentLang = 'ro';
+
+function t(key) {
+  return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) || key;
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  document.documentElement.setAttribute('lang', lang);
+  document.documentElement.setAttribute('data-lang', lang);
+
+  /* Update all data-i18n elements */
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (TRANSLATIONS[lang][key] !== undefined) {
+      el.innerHTML = TRANSLATIONS[lang][key];
+    }
+  });
+
+  /* Active lang button */
+  document.getElementById('btn-ro').classList.toggle('active', lang === 'ro');
+  document.getElementById('btn-ru').classList.toggle('active', lang === 'ru');
+
+  /* Re-render products with new language */
+  renderProducts(filteredProducts);
+  renderCart();
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   3.  DEMO PRODUCTS
+   ── In production these come from Firestore. Replace loadProducts() with
+      a real Firestore query. The schema matches the Firestore structure. ──
+════════════════════════════════════════════════════════════════════════════ */
+
+/*
+  FIRESTORE SCHEMA — products collection
+  /products/{productId}
+  {
+    name_ro:       "Kayo T2 Enduro 250cc",
+    name_ru:       "Kayo T2 Эндуро 250cc",
+    description_ro:"Motocicletă enduro performantă pentru off-road...",
+    description_ru:"Высокопроизводительный эндуро мотоцикл для офф-роуд...",
+    brand:         "Kayo",           // "Kayo" | "Viper" | "Gherakl"
+    type:          "moto",           // "moto" | "atv"
+    price:         2499,             // number (EUR)
+    image:         "https://...",    // main image URL
+    images:        ["...","..."],    // gallery URLs
+    inStock:       true,
+    specs: {
+      engine:       "250cc, 4-stroke",
+      power:        "21 HP",
+      transmission: "5-speed manual",
+      weight:       "110 kg"
+    },
+    createdAt:     firebase.firestore.FieldValue.serverTimestamp()
+  }
+*/
+
+const DEMO_PRODUCTS = [
+  {
+    id: "kayo-t2-250",
+    name_ro: "Kayo T2 Enduro 250cc",
+    name_ru: "Kayo T2 Эндуро 250cc",
+    description_ro: "Motocicletă enduro de top, perfectă pentru trasee dificile și aventuri off-road. Motor 4 timpi, suspensii lungi, design agresiv.",
+    description_ru: "Топовый эндуро мотоцикл, идеальный для сложных трасс и приключений офф-роуд. Двигатель 4T, длинные подвески, агрессивный дизайн.",
+    brand: "Kayo",
+    type: "moto",
+    price: 2499,
+    image: "https://placehold.co/600x400/1E1E1E/F5C400?text=Kayo+T2+250",
+    inStock: true,
+    specs: { engine: "250cc 4T", power: "21 HP", transmission: "5-trepte", weight: "110 kg" }
+  },
+  {
+    id: "kayo-au200",
+    name_ro: "Kayo AU200 ATV",
+    name_ru: "Kayo AU200 ATV",
+    description_ro: "ATV sport cu motor 200cc, design compact și performanțe excepționale pe orice teren.",
+    description_ru: "Спортивный ATV с мотором 200cc, компактный дизайн и исключительные характеристики на любой местности.",
+    brand: "Kayo",
+    type: "atv",
+    price: 1899,
+    image: "https://placehold.co/600x400/1E1E1E/F5C400?text=Kayo+AU200",
+    inStock: true,
+    specs: { engine: "200cc 4T", power: "14 HP", transmission: "CVT auto", weight: "145 kg" }
+  },
+  {
+    id: "viper-f200",
+    name_ro: "Viper F200 Naked",
+    name_ru: "Viper F200 Нейкед",
+    description_ro: "Motocicletă naked urbană cu motor 200cc. Perfectă pentru oraș și drumuri secundare.",
+    description_ru: "Городской нейкед мотоцикл с мотором 200cc. Идеален для города и второстепенных дорог.",
+    brand: "Viper",
+    type: "moto",
+    price: 1650,
+    image: "https://placehold.co/600x400/1E1E1E/F5C400?text=Viper+F200",
+    inStock: true,
+    specs: { engine: "200cc 4T", power: "16 HP", transmission: "5-trepte", weight: "118 kg" }
+  },
+  {
+    id: "viper-atv150",
+    name_ro: "Viper ATV 150cc Junior",
+    name_ru: "Viper ATV 150cc Junior",
+    description_ro: "ATV junior ideal pentru adolescenți. Motor 150cc controlat, sistem de siguranță inclus.",
+    description_ru: "Юниорский ATV, идеален для подростков. Управляемый мотор 150cc, система безопасности в комплекте.",
+    brand: "Viper",
+    type: "atv",
+    price: 1299,
+    image: "https://placehold.co/600x400/1E1E1E/F5C400?text=Viper+ATV+150",
+    inStock: false,
+    specs: { engine: "150cc 4T", power: "9.5 HP", transmission: "CVT auto", weight: "120 kg" }
+  },
+  {
+    id: "gherakl-pro300",
+    name_ro: "Gherakl PRO 300 Sport",
+    name_ru: "Gherakl PRO 300 Спорт",
+    description_ro: "Motocicletă sport de înaltă performanță. Motor 300cc, carenaj integral, frâne hidraulice față-spate.",
+    description_ru: "Высокопроизводительный спортивный мотоцикл. Мотор 300cc, полный обтекатель, гидравлические тормоза спереди и сзади.",
+    brand: "Gherakl",
+    type: "moto",
+    price: 3299,
+    image: "https://placehold.co/600x400/1E1E1E/F5C400?text=Gherakl+PRO300",
+    inStock: true,
+    specs: { engine: "300cc 4T", power: "28 HP", transmission: "6-trepte", weight: "135 kg" }
+  },
+  {
+    id: "gherakl-quad400",
+    name_ro: "Gherakl Quad 400 Utilitar",
+    name_ru: "Gherakl Quad 400 Утилитар",
+    description_ro: "ATV utilitar 400cc, tracțiune 4x4, remorcher hidraulic. Ideal pentru exploatații agricole.",
+    description_ru: "Утилитарный ATV 400cc, привод 4x4, гидравлический буксир. Идеален для сельскохозяйственных работ.",
+    brand: "Gherakl",
+    type: "atv",
+    price: 3850,
+    image: "https://placehold.co/600x400/1E1E1E/F5C400?text=Gherakl+Quad400",
+    inStock: true,
+    specs: { engine: "400cc 4T", power: "32 HP", transmission: "CVT + 4x4", weight: "280 kg" }
+  }
+];
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   4.  PRODUCT STATE & RENDERING
+════════════════════════════════════════════════════════════════════════════ */
+let allProducts     = [];
+let filteredProducts = [];
+let currentSort     = 'default';
+
+/**
+ * In production: replace with Firestore query
+ *   db.collection('products').where('inStock','==',true).onSnapshot(snap => {
+ *     allProducts = snap.docs.map(d => ({id:d.id,...d.data()}));
+ *     applyFilters();
+ *   });
+ */
+function loadProducts() {
+  allProducts      = DEMO_PRODUCTS;
+  filteredProducts = [...allProducts];
+  renderProducts(filteredProducts);
+}
+
+function getBrandColor(brand) {
+  return { Kayo: '#F5C400', Viper: '#3B82F6', Gherakl: '#10B981' }[brand] || '#888';
+}
+
+function renderProducts(products) {
+  const grid  = document.getElementById('product-grid');
+  const empty = document.getElementById('empty-state');
+  const count = document.getElementById('product-count');
+
+  count.textContent = products.length;
+
+  if (!products.length) {
+    grid.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  grid.innerHTML = products.map(p => {
+    const name = p[`name_${currentLang}`] || p.name_ro;
+    const bc   = getBrandColor(p.brand);
+    const stockClass = p.inStock ? 'text-green-400' : 'text-red-400';
+    const stockLabel = p.inStock ? t('modal_in_stock') : t('modal_out_stock');
+
+    return `
+    <div class="product-card rounded-none" data-id="${p.id}">
+      <div class="card-img" style="height:220px;">
+        <img src="${p.image}" alt="${name}" style="height:220px;width:100%;object-fit:cover;" loading="lazy"
+             onerror="this.src='https://placehold.co/600x400/1E1E1E/F5C400?text=G+Moto'" />
+      </div>
+      <div class="p-5">
+        <!-- Brand badge + stock -->
+        <div class="flex items-center justify-between mb-3">
+          <span class="brand-badge" style="background:${bc}22;color:${bc};border:1px solid ${bc}44;">${p.brand}</span>
+          <span class="text-xs font-display font-bold uppercase tracking-wider ${stockClass}">${stockLabel}</span>
+        </div>
+        <!-- Name -->
+        <h3 class="font-display font-black text-xl text-light leading-tight mb-1">${name}</h3>
+        <!-- Type tag -->
+        <p class="font-display text-xs uppercase tracking-widest text-muted mb-4">${p.type === 'moto' ? t('cat_moto') : t('cat_atv')}</p>
+        <!-- Price -->
+        <p class="font-display font-black italic text-3xl text-accent mb-4">€${p.price.toLocaleString()}</p>
+        <!-- Quick specs -->
+        <div class="grid grid-cols-2 gap-1 text-xs text-muted mb-5 border-t border-[#222] pt-4">
+          <span>⚙ ${p.specs.engine}</span>
+          <span>⚡ ${p.specs.power}</span>
+        </div>
+        <!-- Buttons -->
+        <div class="flex gap-2">
+          <button onclick="openModal('${p.id}')"
+            class="flex-1 border border-muted hover:border-accent text-muted hover:text-accent font-display font-bold text-xs uppercase tracking-wider py-2 transition-colors">
+            ${t('btn_details')}
+          </button>
+          <button onclick="addToCart('${p.id}')" ${!p.inStock ? 'disabled' : ''}
+            class="flex-1 bg-accent hover:bg-accent-dark text-black font-display font-bold text-xs uppercase tracking-wider py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+            ${t('btn_add_cart')}
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   5.  FILTER & SORT
+════════════════════════════════════════════════════════════════════════════ */
+function applyFilters() {
+  const showMoto    = document.getElementById('f-moto').checked;
+  const showAtv     = document.getElementById('f-atv').checked;
+  const showKayo    = document.getElementById('f-kayo').checked;
+  const showViper   = document.getElementById('f-viper').checked;
+  const showGherakl = document.getElementById('f-gherakl').checked;
+  const minPrice    = parseFloat(document.getElementById('price-min').value) || 0;
+  const maxPrice    = parseFloat(document.getElementById('price-max').value) || Infinity;
+
+  filteredProducts = allProducts.filter(p => {
+    const typeOk  = (p.type === 'moto' && showMoto) || (p.type === 'atv' && showAtv);
+    const brandOk = (p.brand === 'Kayo' && showKayo) ||
+                    (p.brand === 'Viper' && showViper) ||
+                    (p.brand === 'Gherakl' && showGherakl);
+    const priceOk = p.price >= minPrice && p.price <= maxPrice;
+    return typeOk && brandOk && priceOk;
+  });
+
+  sortProducts(currentSort);
+}
+
+function sortProducts(sortVal) {
+  currentSort = sortVal;
+  const sorted = [...filteredProducts];
+  if (sortVal === 'price-asc')  sorted.sort((a,b) => a.price - b.price);
+  if (sortVal === 'price-desc') sorted.sort((a,b) => b.price - a.price);
+  renderProducts(sorted);
+}
+
+function resetFilters() {
+  ['f-moto','f-atv','f-kayo','f-viper','f-gherakl'].forEach(id => document.getElementById(id).checked = true);
+  document.getElementById('price-min').value = '';
+  document.getElementById('price-max').value = '';
+  applyFilters();
+}
+
+function filterByType(type) {
+  if (type === 'moto') {
+    document.getElementById('f-moto').checked = true;
+    document.getElementById('f-atv').checked  = false;
+  } else {
+    document.getElementById('f-moto').checked = false;
+    document.getElementById('f-atv').checked  = true;
+  }
+  applyFilters();
+  document.getElementById('catalog').scrollIntoView({ behavior: 'smooth' });
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   6.  PRODUCT DETAIL MODAL
+════════════════════════════════════════════════════════════════════════════ */
+function openModal(productId) {
+  const p = allProducts.find(x => x.id === productId);
+  if (!p) return;
+
+  const name = p[`name_${currentLang}`] || p.name_ro;
+  const desc = p[`description_${currentLang}`] || p.description_ro;
+  const bc   = getBrandColor(p.brand);
+  const stockLabel = p.inStock ? `<span class="text-green-400">● ${t('modal_in_stock')}</span>` : `<span class="text-red-400">● ${t('modal_out_stock')}</span>`;
+
+  document.getElementById('modal-content').innerHTML = `
+    <div class="relative">
+      <!-- Close -->
+      <button onclick="closeModal()" class="absolute top-4 right-4 z-10 text-muted hover:text-light bg-base/80 rounded-full w-10 h-10 flex items-center justify-center">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+
+      <!-- Image -->
+      <div style="background:#1E1E1E;height:300px;overflow:hidden;">
+        <img src="${p.image}" alt="${name}" style="width:100%;height:300px;object-fit:cover;"
+             onerror="this.src='https://placehold.co/600x300/1E1E1E/F5C400?text=G+Moto'" />
+      </div>
+
+      <!-- Info -->
+      <div class="p-8">
+        <div class="flex items-start justify-between gap-4 mb-4">
+          <div>
+            <span class="brand-badge mb-3 inline-block" style="background:${bc}22;color:${bc};border:1px solid ${bc}44;">${p.brand}</span>
+            <h2 class="font-display font-black text-3xl text-light">${name}</h2>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="font-display font-black italic text-4xl text-accent">€${p.price.toLocaleString()}</p>
+            <p class="text-xs font-display mt-1">${stockLabel}</p>
+          </div>
+        </div>
+
+        <p class="text-muted text-sm leading-relaxed mb-6">${desc}</p>
+
+        <!-- Specs -->
+        <div class="mb-6">
+          <p class="font-display font-bold text-xs uppercase tracking-[0.2em] text-muted mb-3">${t('modal_specs')}</p>
+          <div class="grid grid-cols-2 gap-3">
+            ${[
+              [t('label_engine'), p.specs.engine],
+              [t('label_power'),  p.specs.power],
+              [t('label_transmission'), p.specs.transmission],
+              [t('label_weight'), p.specs.weight]
+            ].map(([label, val]) => `
+              <div class="bg-elevated border border-[#222] p-3">
+                <p class="text-muted text-xs uppercase tracking-wider font-display mb-1">${label}</p>
+                <p class="text-light font-semibold text-sm">${val}</p>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <button onclick="addToCart('${p.id}'); closeModal();" ${!p.inStock ? 'disabled' : ''}
+          class="w-full bg-accent hover:bg-accent-dark text-black font-display font-bold text-lg uppercase tracking-wider py-4 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+          ${t('btn_add_cart')}
+        </button>
+      </div>
+    </div>`;
+
+  const modal = document.getElementById('product-modal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('product-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   7.  SHOPPING CART
+   ── Local cart state with Firestore persistence ───────────────────────────
+
+   FIRESTORE SCHEMA — carts collection
+   /carts/{userId}/items/{productId}
+   {
+     productId:   "kayo-t2-250",
+     name_ro:     "Kayo T2 Enduro 250cc",
+     name_ru:     "Kayo T2 Эндуро 250cc",
+     price:       2499,
+     quantity:    1,
+     image:       "https://...",
+     addedAt:     firebase.firestore.FieldValue.serverTimestamp()
+   }
+════════════════════════════════════════════════════════════════════════════ */
+let cart = []; // [{productId, name_ro, name_ru, price, quantity, image}]
+
+function addToCart(productId) {
+  const p = allProducts.find(x => x.id === productId);
+  if (!p || !p.inStock) return;
+
+  const existing = cart.find(i => i.productId === productId);
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    cart.push({
+      productId: p.id,
+      name_ro:   p.name_ro,
+      name_ru:   p.name_ru,
+      price:     p.price,
+      quantity:  1,
+      image:     p.image
+    });
+  }
+
+  syncCartToFirestore();
+  renderCart();
+  updateCartCount();
+  showToast(t('toast_added'));
+  if (!document.getElementById('cart-drawer').classList.contains('open')) {
+    toggleCart();
+  }
+}
+
+function removeFromCart(productId) {
+  cart = cart.filter(i => i.productId !== productId);
+  syncCartToFirestore();
+  renderCart();
+  updateCartCount();
+  showToast(t('toast_removed'));
+}
+
+function changeQty(productId, delta) {
+  const item = cart.find(i => i.productId === productId);
+  if (!item) return;
+  item.quantity = Math.max(1, item.quantity + delta);
+  syncCartToFirestore();
+  renderCart();
+  updateCartCount();
+}
+
+function clearCart() {
+  cart = [];
+  syncCartToFirestore();
+  renderCart();
+  updateCartCount();
+}
+
+function renderCart() {
+  const container = document.getElementById('cart-items');
+  const totalEl   = document.getElementById('cart-total');
+
+  if (!cart.length) {
+    container.innerHTML = `
+      <div class="text-center py-16">
+        <p class="font-display font-black italic text-5xl text-muted opacity-20 mb-4">∅</p>
+        <p class="text-muted text-sm" data-i18n="cart_empty">${t('cart_empty')}</p>
+      </div>`;
+    totalEl.textContent = '€0';
+    return;
+  }
+
+  const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+  totalEl.textContent = `€${total.toLocaleString()}`;
+
+  container.innerHTML = cart.map(item => {
+    const name = item[`name_${currentLang}`] || item.name_ro;
+    return `
+    <div class="flex gap-4 mb-4 pb-4 border-b border-[#1a1a1a]">
+      <img src="${item.image}" alt="${name}" class="w-20 h-16 object-cover flex-shrink-0 bg-elevated"
+           onerror="this.src='https://placehold.co/80x64/1E1E1E/F5C400?text=G'" />
+      <div class="flex-1 min-w-0">
+        <p class="font-display font-bold text-sm text-light truncate mb-1">${name}</p>
+        <p class="text-accent font-display font-black text-lg">€${item.price.toLocaleString()}</p>
+        <div class="flex items-center gap-2 mt-2">
+          <button onclick="changeQty('${item.productId}',-1)"
+            class="w-7 h-7 border border-[#333] hover:border-accent text-muted hover:text-accent text-sm flex items-center justify-center transition-colors">−</button>
+          <span class="font-display font-bold text-sm w-5 text-center">${item.quantity}</span>
+          <button onclick="changeQty('${item.productId}',1)"
+            class="w-7 h-7 border border-[#333] hover:border-accent text-muted hover:text-accent text-sm flex items-center justify-center transition-colors">+</button>
+        </div>
+      </div>
+      <button onclick="removeFromCart('${item.productId}')"
+        class="text-muted hover:text-red-400 flex-shrink-0 self-start mt-1 transition-colors">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function updateCartCount() {
+  const countEl = document.getElementById('cart-count');
+  const total   = cart.reduce((s,i) => s + i.quantity, 0);
+  if (total > 0) {
+    countEl.textContent = total;
+    countEl.style.display = 'flex';
+  } else {
+    countEl.style.display = 'none';
+  }
+}
+
+function toggleCart() {
+  document.getElementById('cart-drawer').classList.toggle('open');
+  document.getElementById('cart-overlay').classList.toggle('open');
+  document.body.style.overflow = document.getElementById('cart-drawer').classList.contains('open') ? 'hidden' : '';
+}
+
+function proceedToCheckout() {
+  if (!cart.length) return;
+  if (!currentUser) { showToast('Please wait…'); return; }
+  /* In production: call Firebase Cloud Function for secure checkout */
+  showToast('Redirecționare spre plată…');
+  /* window.location.href = '/checkout.html'; */
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   8.  FIRESTORE CART SYNC
+════════════════════════════════════════════════════════════════════════════ */
+function syncCartToFirestore() {
+  if (!currentUser) return;
+  const uid = currentUser.uid;
+
+  /* Use a single cart document per user with the full items array */
+  db.collection('carts').doc(uid).set({
+    items:     cart,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(console.error);
+}
+
+function loadCartFromFirestore(uid) {
+  db.collection('carts').doc(uid).get()
+    .then(doc => {
+      if (doc.exists && doc.data().items) {
+        cart = doc.data().items;
+        renderCart();
+        updateCartCount();
+      }
+    })
+    .catch(console.error);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   9.  TOAST NOTIFICATION
+════════════════════════════════════════════════════════════════════════════ */
+let toastTimer = null;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.innerHTML = `<span class="text-accent mr-2">✓</span>${msg}`;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   10.  MISC UI
+════════════════════════════════════════════════════════════════════════════ */
+function toggleMobileMenu() {
+  document.getElementById('mobile-menu').classList.toggle('open');
+}
+
+/* Navbar scroll effect */
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('navbar');
+  if (window.scrollY > 40) nav.classList.add('scrolled');
+  else nav.classList.remove('scrolled');
+});
+
+/* Close modal with Escape */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeModal();
+    if (document.getElementById('cart-drawer').classList.contains('open')) toggleCart();
+  }
+});
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   11.  BOOT
+════════════════════════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  loadProducts();
+  setLang('ro'); // default language
+});
+
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     FIREBASE SECURITY RULES (paste into Firebase Console → Firestore → Rules)
+═══════════════════════════════════════════════════════════════════════════════
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Products: public read, admin write only ─────────────────────────
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if request.auth != null
+                   && request.auth.token.admin == true;
+    }
+
+    // ── Carts: user can only read/write their own cart ──────────────────
+    match /carts/{userId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+
+    // ── Orders: user can read their own, only Cloud Functions can write ─
+    match /orders/{orderId} {
+      allow read:  if request.auth != null
+                   && request.auth.uid == resource.data.userId;
+      allow create: if false; // only via Cloud Function (server-side)
+      allow update, delete: if false;
+    }
+  }
+}
+
+═══════════════════════════════════════════════════════════════════════════════
+     CLOUD FUNCTION SKELETON (functions/index.js)
+     Deploy with: firebase deploy --only functions
+═══════════════════════════════════════════════════════════════════════════════
+
+const functions = require('firebase-functions');
+const admin     = require('firebase-admin');
+admin.initializeApp();
+const db = admin.firestore();
+
+exports.secureCheckout = functions.https.onCall(async (data, context) => {
+  // 1. Require authentication
+  if (!context.auth) throw new functions.https.HttpsError('unauthenticated', 'Login required.');
+
+  const uid = context.auth.uid;
+
+  // 2. Load cart from Firestore (never trust client-sent prices)
+  const cartDoc = await db.collection('carts').doc(uid).get();
+  if (!cartDoc.exists) throw new functions.https.HttpsError('not-found', 'Cart empty.');
+
+  const cartItems = cartDoc.data().items;
+
+  // 3. Re-fetch authoritative prices from product catalog
+  let total = 0;
+  const verifiedItems = [];
+  for (const item of cartItems) {
+    const prodDoc = await db.collection('products').doc(item.productId).get();
+    if (!prodDoc.exists || !prodDoc.data().inStock) continue;
+    const serverPrice = prodDoc.data().price;
+    total += serverPrice * item.quantity;
+    verifiedItems.push({ ...item, price: serverPrice });
+  }
+
+  // 4. Create order with server-verified prices
+  const orderRef = await db.collection('orders').add({
+    userId:    uid,
+    items:     verifiedItems,
+    total:     total,
+    status:    'pending',
+    createdAt: admin.firestore.FieldValue.serverTimestamp()
+  });
+
+  // 5. Clear cart
+  await db.collection('carts').doc(uid).delete();
+
+  // 6. Return order ID (integrate with Stripe/payment gateway here)
+  return { orderId: orderRef.id, total };
+});
+
+═══════════════════════════════════════════════════════════════════════════════
+     ORDERS SCHEMA (Firestore)
+     /orders/{orderId}
+     {
+       userId:    "firebase_uid_abc123",
+       items: [
+         {
+           productId: "kayo-t2-250",
+           name_ro:   "Kayo T2 Enduro 250cc",
+           name_ru:   "Kayo T2 Эндуро 250cc",
+           price:     2499,      <- server-verified, not client price
+           quantity:  1,
+           image:     "https://..."
+         }
+       ],
+       total:     2499,
+       status:    "pending",   // "pending" | "paid" | "shipped" | "delivered"
+       createdAt: <Timestamp>
+     }
+════════════════════════════════════════════════════════════════════════════ -->
+
+</body>
+</html>
