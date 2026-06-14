@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="ro" data-lang="ro">
 <head>
   <meta charset="UTF-8" />
@@ -667,42 +667,7 @@
 <script src="firebase-config.js"></script>
 
 
-    <div class="product-card rounded-none" data-id="${p.id}">
-      <div class="card-img" style="height:220px;">
-        <img src="${p.image}" alt="${name}" style="height:220px;width:100%;object-fit:cover;" loading="lazy"
-             onerror="this.src='https://placehold.co/600x400/1E1E1E/F5C400?text=G+Moto'" />
-      </div>
-      <div class="p-5">
-        <!-- Brand badge + stock -->
-        <div class="flex items-center justify-between mb-3">
-          <span class="brand-badge" style="background:${bc}22;color:${bc};border:1px solid ${bc}44;">${p.brand}</span>
-          <span class="text-xs font-display font-bold uppercase tracking-wider ${stockClass}">${stockLabel}</span>
-        </div>
-        <!-- Name -->
-        <h3 class="font-display font-black text-xl text-light leading-tight mb-1">${name}</h3>
-        <!-- Type tag -->
-        <p class="font-display text-xs uppercase tracking-widest text-muted mb-4">${p.type === 'moto' ? t('cat_moto') : t('cat_atv')}</p>
-        <!-- Price -->
-        <p class="font-display font-black italic text-3xl text-accent mb-4">€${p.price.toLocaleString()}</p>
-        <!-- Quick specs -->
-        <div class="grid grid-cols-2 gap-1 text-xs text-muted mb-5 border-t border-[#222] pt-4">
-          <span>⚙ ${p.specs.engine}</span>
-          <span>⚡ ${p.specs.power}</span>
-        </div>
-        <!-- Buttons -->
-        <div class="flex gap-2">
-          <button onclick="openModal('${p.id}')"
-            class="flex-1 border border-muted hover:border-accent text-muted hover:text-accent font-display font-bold text-xs uppercase tracking-wider py-2 transition-colors">
-            ${t('btn_details')}
-          </button>
-          <button onclick="addToCart('${p.id}')" ${!p.inStock ? 'disabled' : ''}
-            class="flex-1 bg-accent hover:bg-accent-dark text-black font-display font-bold text-xs uppercase tracking-wider py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-            ${t('btn_add_cart')}
-          </button>
-        </div>
-      </div>
-    </div>`;
- 
+   
 </script>
 
 <!-- ═══════════════════════════════════════════════════════════════════════════
